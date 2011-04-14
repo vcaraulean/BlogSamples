@@ -23,32 +23,34 @@ namespace RadTabControlAndCaliburn
 				Component.For<SecondTabItemViewModel>()
 				);
 
-			ConventionManager.AddElementConvention<RadTabControl>(RadTabControl.ItemsSourceProperty,
+			ConventionManager
+				.AddElementConvention<RadTabControl>(RadTabControl.ItemsSourceProperty,
 			                                                      "ItemsSource",
 			                                                      "SelectionChanged")
 				.ApplyBinding = (viewModelType, path, property, element, convention) =>
 				{
 					if (!ConventionManager.SetBinding(viewModelType, path, property, element, convention))
-						return;
+						return false;
 
-					var tabControl = (RadTabControl) element;
+					var tabControl = (RadTabControl)element;
 					if (tabControl.ContentTemplate == null
-					    && tabControl.ContentTemplateSelector == null
-					    && property.PropertyType.IsGenericType)
+						&& tabControl.ContentTemplateSelector == null
+						&& property.PropertyType.IsGenericType)
 					{
 						var itemType = property.PropertyType.GetGenericArguments().First();
-						if (!itemType.IsValueType && !typeof (string).IsAssignableFrom(itemType))
+						if (!itemType.IsValueType && !typeof(string).IsAssignableFrom(itemType))
 							tabControl.ContentTemplate = ConventionManager.DefaultItemTemplate;
 					}
 					ConventionManager.ConfigureSelectedItem(element,
-					                                        RadTabControl.SelectedItemProperty,
-					                                        viewModelType,
-					                                        path);
+															RadTabControl.SelectedItemProperty,
+															viewModelType,
+															path);
 
 					if (string.IsNullOrEmpty(tabControl.DisplayMemberPath))
 						ConventionManager.ApplyHeaderTemplate(tabControl,
-						                                      RadTabControl.ItemTemplateProperty,
-						                                      viewModelType);
+															  RadTabControl.ItemTemplateProperty,
+															  viewModelType);
+					return true;
 				};
 		}
 
